@@ -1,29 +1,10 @@
 ---
 layout: post
 title: "A Terraformd Homelab"
-date: Wed Jun 18 01:39:03 PM HST 2025
-# List Format
-table_of_contents:
-    - Overview
-    - 1: VyOS
-    - 2: Terraform Starts
-    - 3: IP Tables
-    - 4: Cloudinit provisioning
-    - 5: Playbook Troubleshooting
-# List Format
+date: Wed Jun 18 01:39:03 -1000
 ---
 
-
-# {{ page.title }}
-
-## Table of Contents
-{% for content in page.table_of_contents %}
- - <a href="#{{ content | downcase | replace: ' ', '-' }}">{{ content  }}</a> 
- {% endfor %}
-
-
-
-## {{ page.table_of_contents[0] }} <a name="{{ page.table_of_contents[0] | downcase | replace: ' ', '-' }}"></a>
+## Overview
 
 I have been humbly trying to learn Terraform locally because provisioning cloud resources is a costly endeavour. And trying to learn a tool that is primarily for cloud usage on a local environment definitely incurs some headaches.
 So my goal trying to broaden my understanding of all modern I.T infrastructure and my pursuit of cybersecurity was to build a cybersecurity homelab, something along the lines of
@@ -46,8 +27,10 @@ The list includes:
     - Cloud-init 
 
 And that's just a small sample of high-level stuff I had to deal with.
+The completed and potential ongoings are here:
+[Homelab](https://gitlab.com/chin-tech/Homelab)
 
-## {{ page.table_of_contents[1] }} <a name="{{ page.table_of_contents[1] | downcase | replace: ' ', '-' }}"></a>
+## VyOS
 Enter *VyOS*
 This is an open source firewall, much like pfSense. However, it's far easier to configure programatically than pfSense which is why I chose it.
 Unfortunately, it's easier to automate, but I still couldn't find an image that had cloud-init preinstalled and I had even tried building my own inside a docker container, but upon booting it failed. So I had to self-install and then turn it into a golden image where the first interface is activated and ssh is enabled. This wasn't too terrible.
@@ -77,7 +60,7 @@ set service ssh port '22'
 So now we can start utilizing this inside terraform, which I intitially thought we could just run the iso and boot it like that within it. You could. However it's not practical for a deployment to install your ISO, which is why I was on the hunt for cloudimages and it's why cloud companies have a plethora of images like that. It's much more seamless.
 
 
-## {{ page.table_of_contents[2] }} <a name="{{ page.table_of_contents[2] | downcase | replace: ' ', '-' }}"></a>
+## Terraform Overview
 
 So now we're playing with Terraform. Since I'm using qemu that made me have to use libvirtd as the terraform "provider"
 Terraform is a very interesting tool and comes with it's own configuration language called Hashicorp Configuration Language (HCL). At first, I disliked having to learn yet another markup language, but honestly I started growing fond of it after using it, because it seems far more readable than even yaml. I obviously didn't start of thinking that, I hated it because I thought I had to specify everything in blocks and then you get a lot of repetition. I learned rather quickly though that Mitchell Hasimoto is pretty respected for a reason. 
@@ -305,7 +288,7 @@ You define a disk, from the image pool we created earlier (we're actually passin
 Then there's a `null_resource`  which is a way to tell terraform to "provision" an instruction. Beautiful. And in this case, our provisioner is a locally executed command and we're running an ansible-playbook which contains all of the good things we need for setting up 3 different VLANs, dns, dhcp and routes, as well as implanting the ssh-key onto the VyOS machine since we didn't do that initially.
 
 
-## {{ page.table_of_contents[3] }} <a name="{{ page.table_of_contents[3] | downcase | replace: ' ', '-' }}"></a>
+## IP Tables
 
 -- IP TABLE PORTION --
 After doing quite a bit of the above, I had this issue where I could have DNS resolution from my host-network but no other traffic out of the VM.
@@ -375,7 +358,7 @@ And the rest may be pretty clear with the comments.
 That was fun, and that's some stuff that is typically done for you, like Docker for instance, if you look at your iptables rules, it's filled with some Docker routes to make everything work correctly.
 And after I did that, my connections actually worked as expected. It is still curious how DNS responses still got forwarded and weren't dropped.
 
-## {{ page.table_of_contents[4] }} <a name="{{ page.table_of_contents[4] | downcase | replace: ' ', '-' }}"></a>
+## Cloud-init provisioning
 
 With the VyOS up and running the next step is the cloud-init images of Ubuntu and Fedora. 
 This would look drastically similar to the vyos section, however we're adding in a new section, since these are cloud images:
@@ -433,7 +416,7 @@ vlans:
 
 And that gives us some initial configuration, setting up a user, ssh keys, the hostname and the vlan network.
 
-## {{ page.table_of_contents[5] }} <a name="{{ page.table_of_contents[5] | downcase | replace: ' ', '-' }}"></a>
+## SSH Ansible problems
 
 Now the last part which is essentially the ansible playbook which allows for the complete setup of the Wazuh server, indexer, and dashboard.
 The construction of that was a little annoying, but surprisingly the most annoying aspect was getting the `wait_for_connection` aspect to work.
