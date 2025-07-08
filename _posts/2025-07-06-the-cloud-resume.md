@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "The Cloud Resume"
-date: Sun Jul  6 07:54:00 PM -1000
+date: Sun Jul 6 07:54:00 -1000
 ---
 
 ## Overview
