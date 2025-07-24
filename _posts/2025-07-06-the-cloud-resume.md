@@ -63,7 +63,7 @@ And apparently with NoSQL you can easily do that, you just define an id with whi
 
 Now I haven't messed with lambda functions in AWS to specifically run code, I've had Docker containers run, which makes more sense to me, because Docker has all of the components for your code to run. So the Serverless arbitrary code execution seemed a bit more confusing to me because where do the dependencies come from? How do the inputs to the function actually get passed there?
 
-The first one is easy enough, they have the predetermined environments you can run and any extra dependencies you need to import just like any other environment. So for instance if your function needs the `aws-sdk`, you require it, include it in the `package.json` and `npm install` or just `npm install <package>`. Then write your code, zip up the package and upload it, but write the function into `exports.function_name` so the environment can use it. Yeah this is specifically Javascript, but the principle applies to the other environments.
+The first one is easy enough, they have the predetermined environments you can run and any extra dependencies you need to import just like any other environment. So for instance if your function needs the `aws-sdk`, you require it, include it in the `package.json` and `npm install` or just `npm install <package>`. Then write your code, zip up the package and upload it. You have to be sure to write the function into `exports.function_name` so the environment can use it though. Yeah this is specifically Javascript, but the principle applies to the other environments.
 
 But if I'm writing a function that's based on some request's event...how do I know what's in the event?
 
@@ -72,7 +72,7 @@ exports.myfunc( (event) => {
     console.log(event)
 });
 ```
-Actually this is how. Because the AWS Documentation even though it's pretty explanatory with regards to the exact reference to which payload gets passed where isn't wholly obvious! As expected, AI can spit it out extremely easily, but even asking AI where it got that information actually links you to non-existent githubs or aspects of the AWS Documentation that don't work. This is a double edged sword to me because, I love the ease of use that AI can bring, but I want it to be a speed increase but ultimately I should be able to reference the same knowledge base it has. Unfortunately, I probably do, it's just not as clear.
+Actually this is how. Because the AWS documentation even though it's pretty explanatory in some areas,  with regards to the exact reference to which payload gets passed where it...isn't obvious. As expected, AI can spit it out extremely easily, but even asking AI where it got that information actually links you to non-existent githubs or aspects of the AWS Documentation that don't work. This is a double edged sword to me because, I love the ease of use that AI can bring, It's an amazing speed increase in a lot areas but ultimately I should be able to reference the same knowledge base it has. It's probably out there, but it's just not being clear with me.
 The AWS functions will be using an `AWS_PROXY` integration, since they'll be communicating between AWS services. It'll be a websocket and I found [this](https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-websocket-api-route-keys-connect-disconnect.html)
 ```js
  export const handler = async(event, context) => {
@@ -85,7 +85,7 @@ The AWS functions will be using an `AWS_PROXY` integration, since they'll be com
 };
 ```
 
-Which this gives you enough to work with, but is truly annoying that there's not a solid requestContext's for each integration for reference. 
+Which this gives you enough to work with, but is truly annoying that there's not a solid requestContext's for each integration for reference.
 
 So how will our functions look?
 
