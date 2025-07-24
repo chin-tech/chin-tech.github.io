@@ -10,7 +10,7 @@ date: Tue Jul  8 07:02:49 -1000
 Now, I've done a few boxes so far in Hack The Box and I've occasionally had to use kerberos to get a ticket. And it was a realm (yeah, I did that) of complete fuzziness for me as to how to properly generate the correct configuration to actually get the ticket. I've watched a complete deep dive about how the authentication mechanism works in Keberos, the whole flow:
 ![mermaid_seq](../assets/posts/configuring_hades_dog/mermaid.png)
 
-and how small aspects of this process are exploitable in certain situations. However, the more practical use-case within pen-testing of actually dealing with the configuration to initialize it, I have just been fumbling along and it's finally bothered me off enough to learn. So, I'm writing this down hopefully for anyone else to see, because you'll come across some situation where `nxc smb --generate-krb5-file` won't work because you need kerberos to authenticate, and then you cry because you have no idea what the domain realm is supposed to be or what comes after that.
+and how small aspects of this process are exploitable in certain situations. However, the more practical use case within pentesting, which is dealing with the configuration to initialize it. Has left me fumbling along and it's finally bothered me enough to learn. So, I'm writing this down hopefully for anyone else to see, because you'll come across some situation where `nxc smb --generate-krb5-file` won't work because you need kerberos to authenticate, and then you cry because you have no idea what the domain realm is supposed to be or what comes after that.
 
 ## The File
 
