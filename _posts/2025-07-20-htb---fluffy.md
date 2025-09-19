@@ -2,6 +2,9 @@
 layout: post
 title: "HTB - Fluffy"
 date: Sun Jul 20 06:12:48 PM HST 2025
+image:
+  path: ../assets/posts/htb-fluffy/banner.png
+  alt: Fluffy_banner
 # List Format
 table_of_contents:
     - Overview

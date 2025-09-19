@@ -2,6 +2,9 @@
 layout: post
 title: "HTB Planning"
 date: Sat May 17 09:16:21 PM HST 2025
+image:
+    path: ../assets/posts/planning/banner.png
+    alt: planning_banner
 # List Format
 table_of_contents:
     - Overview

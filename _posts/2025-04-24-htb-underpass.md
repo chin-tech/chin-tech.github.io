@@ -2,6 +2,9 @@
 layout: post
 title: "[HTB] - Underpass"
 date: 2025-04-24 21:35 -1000
+image:
+   path: ../assets/posts/underpass/banner.png
+   alt: underpass_banner
 ---
 
 # HTB - Underpass #

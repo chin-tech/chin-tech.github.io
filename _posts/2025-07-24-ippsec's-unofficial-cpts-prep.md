@@ -2,6 +2,9 @@
 layout: post
 title: "Ippsec's Unofficial CPTS Prep"
 date: Thu Jul 24 06:28:41 AM HST 2025
+image:
+    path: ../assets/posts/htb-cpts-prep-list/banner.png
+    alt: cpts_prep_banner
 # List Format
 table_of_contents:
     - Overview
