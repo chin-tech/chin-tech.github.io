@@ -1,0 +1,23 @@
+---
+const { headings = [] } = Astro.props;
+const filteredHeadings = headings.filter((h) => h.depth > 1 && h.depth < 4);
+---
+
+<nav class="toc w-full">
+  <ul class="menu menu-xs bg-transparent w-full p-0 gap-0">
+    {filteredHeadings.map((heading) => (
+      <li class="w-full">
+        <a 
+          href={`#${heading.slug}`} 
+          class:list={[
+            "py-1.5 px-2 hover:text-primary transition-all block w-full leading-tight",
+            heading.depth === 2 && "font-medium",
+            heading.depth === 3 && "pl-4 opacity-70 text-[11px]"
+          ]}
+        >
+          {heading.text}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>

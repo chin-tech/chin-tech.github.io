@@ -1,0 +1,33 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE } from '../consts';
+import '../styles/search.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={`Intel Search | ${SITE_TITLE}`} />
+    <script src="/pagefind/pagefind.js" is:inline></script>
+  </head>
+  <body class="bg-base-100 text-base-content font-mono">
+    <Header />
+    <main class="max-w-4xl mx-auto px-4 py-12">
+      <section class="mb-12 border-b border-primary/20 pb-4">
+          <input 
+            type="text" 
+            id="search-input" 
+            placeholder="EXECUTE INTEL QUERY..." 
+            class="input input-bordered border-primary/40 w-full bg-base-200 focus:border-primary text-primary placeholder:opacity-30"
+          />
+      </section>
+
+      <div id="results" class="space-y-6"></div>
+    </main>
+    <Footer />
+
+  <script is:inline src="/scripts/search-blog.js"></script>
+  </body>
+</html>

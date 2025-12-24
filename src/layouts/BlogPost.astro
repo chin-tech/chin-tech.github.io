@@ -1,0 +1,84 @@
+---
+import { Image } from 'astro:assets';
+import type { CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import FormattedDate from '../components/FormattedDate.astro';
+import Header from '../components/Header.astro';
+import TitleIcon from '../components/TitleIcon.astro'
+import TableOfContents from '../components/TableOfContents.astro';
+import SideBarToc from '../components/SideBarTOC.astro';
+// import '../scripts/copy-code-buttons.js';
+
+type Props = CollectionEntry<'blog'>['data'] & { headings: any[] };
+
+const { title, description, pubDate, updatedDate, heroImage, difficulty, postType, headings, osType = "", } = Astro.props;
+
+const glowMap = {
+  Easy: "drop-shadow(0 0 25px rgba(34, 197, 94, 0.6))",
+  Medium: "drop-shadow(0 0 25px rgba(249, 115, 22, 0.6))",
+  Hard: "drop-shadow(0 0 25px rgba(239, 68, 68, 0.6))",
+  Insane: "drop-shadow(0 0 30px rgba(148, 163, 184, 0.7))"
+};
+
+const activeFilter = difficulty ? glowMap[difficulty] : "none";
+const optimizedHero = typeof heroImage === 'string' ? heroImage : heroImage.src;
+---
+
+<html lang="en" class="scroll-smooth scroll-pt-20">
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+
+  <body class="bg-base-100 text-base-content antialiased">
+    <Header />
+    
+<main class="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 relative">
+      <SideBarToc headings={headings} difficulty={difficulty}/>
+
+  <article data-pagefind-body>
+        
+<div class="hidden">
+  <img src={optimizedHero} data-pagefind-meta="image[src]" data-pagefind-weight="10" />
+  <span data-pagefind-meta="type">{postType}</span>
+  <span data-pagefind-meta="os">{osType}</span>
+  <span data-pagefind-meta="difficulty">{difficulty}</span>
+  <span data-pagefind-meta="date">{new Date(pubDate).toLocaleDateString('en-US')}</span>
+</div>
+    <div class="flex justify-center mb-12">
+      {heroImage && (
+          <Image 
+            width={420} 
+            height={420} 
+            src={heroImage} 
+            alt={title} 
+            style={{ filter: activeFilter }}
+            class="max-w-full h-auto rounded-xl"
+          />
+      )}
+    </div>
+
+    <div class="prose prose-yellow dark:prose-invert lg:prose-xl w-full mx-auto">
+      <header class="text-center not-prose mb-8">
+         <div class="text-sm opacity-60 mb-2">
+          <FormattedDate date={pubDate} />
+          {updatedDate && (
+            <div class="italic text-xs mt-1">Updated: <FormattedDate date={updatedDate} /></div>
+          )}
+        </div>
+        <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-4">
+          <span class="inline-block mb-2"><TitleIcon postType={postType}/></span>
+          <br /> {title}
+        </h1>
+        <div class="divider w-24 mx-auto"></div>
+      </header>
+
+      <slot />
+    </div>
+  </article>
+</main>
+
+    <Footer />
+  <script src="/src/scripts/copy-code-buttons.js" is:inline></script>
+  </body>
+</html>

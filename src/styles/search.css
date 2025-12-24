@@ -1,0 +1,38 @@
+  :root {
+    --pagefind-ui-primary: oklch(82% 0.18 90); /* Your Yellow */
+    --pagefind-ui-text: oklch(85% 0.02 80);
+    --pagefind-ui-background: oklch(20% 0.01 0); 
+    --pagefind-ui-border: oklch(82% 0.18 90 / 0.2); 
+    --pagefind-ui-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  /* Using standard CSS instead of @apply to avoid Tailwind v4 reference errors */
+  #search .pagefind-ui__search-input {
+    font-family: var(--pagefind-ui-font) !important;
+    background-color: var(--color-base-200) !important;
+    color: var(--color-base-content) !important;
+    border: 1px solid oklch(82% 0.18 90 / 0.3) !important;
+    border-radius: 0.5rem !important;
+  }
+
+  #search .pagefind-ui__result-link {
+    color: var(--color-primary) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-style: italic !important;
+    text-decoration: none !important;
+  }
+
+  #search .pagefind-ui__result-excerpt {
+    font-family: var(--pagefind-ui-font) !important;
+    font-size: 0.875rem !important;
+    opacity: 0.7 !important;
+  }
+
+  #search .pagefind-ui__message {
+    font-family: var(--pagefind-ui-font) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.2em !important;
+    font-size: 0.75rem !important;
+    opacity: 0.5 !important;
+  }

@@ -1,0 +1,23 @@
+---
+import Layout from '../layouts/AboutPost.astro';
+import { getEntry, render } from 'astro:content';
+
+// 1. Fetch the specific "whoami" markdown file
+const post = await getEntry('about', 'whoami');
+
+// 2. Handle the case where the file might be missing
+if (!post) {
+    return Astro.redirect('/404');
+}
+
+// 3. Render the markdown content
+const { Content } = await render(post);
+
+// 4. Spread the data. 
+// IMPORTANT: Ensure whoami.md has 'title' and 'pubDate' in its frontmatter!
+---
+
+
+<Layout {...post.data}>
+    <Content />
+</Layout>

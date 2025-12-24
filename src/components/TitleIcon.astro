@@ -1,0 +1,23 @@
+---
+// src/components/TitleIcon.astro
+import { Icon } from 'astro-icon/components';
+
+interface Props {
+  postType: string;
+  class?: string;
+}
+
+const { postType = "", class: className } = Astro.props;
+
+// Logic to determine which icon to show
+let iconName = "";
+if (postType.toLowerCase().includes("htb")) iconName = "htb"; // Ensure you have htb.svg in src/icons
+if (postType.toLowerCase().includes("hackthebox")) iconName = "htb"; // Ensure you have htb.svg in src/icons
+// if (postType.toLowerCase().includes("offsec")) iconName = "offsec";
+// if (postType.toLowerCase().includes("thm")) iconName = "thm";
+if (postType.toLowerCase().includes("vulnlab")) iconName = "vulnlab";
+---
+
+{iconName && (
+  <Icon name={iconName} class:list={["inline-block mr-2", className]} />
+)}

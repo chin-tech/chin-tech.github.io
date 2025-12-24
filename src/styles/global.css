@@ -1,0 +1,102 @@
+/*
+  The CSS in this style tag is based off of Bear Blog's default CSS.
+  https://github.com/HermanMartinus/bearblog/blob/297026a877bc2ab2b3bdfbd6b9f7961c350917dd/templates/styles/blog/default.css
+  License MIT: https://github.com/HermanMartinus/bearblog/blob/master/LICENSE.md
+ */
+@import "tailwindcss";
+@source "../../src/**/*.{astro,html,js,jsx,md,mdx,ts,tsx}";
+
+@plugin "@tailwindcss/typography";
+@plugin "daisyui" {
+  themes: mytheme --default;
+}
+
+@plugin "daisyui/theme" {
+  name: "mytheme";
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+
+  /* Backgrounds: #000000 to #202020 range */
+  --color-base-100: oklch(15% 0 0);      /* Very deep charcoal/black */
+  --color-base-200: oklch(20% 0.01 0);   /* Slightly lighter for cards */
+  --color-base-300: oklch(25% 0.02 0);   /* Borders/Hover states */
+
+  /* The "Relaxing" Text: Soft Cream/Off-white */
+  --color-base-content: oklch(85% 0.02 80); 
+
+  /* The Yellow Accent: Warm Golden Yellow (#facc15 equivalent) */
+  --color-primary: oklch(82% 0.18 90);
+  --color-primary-content: oklch(20% 0.05 90);
+  
+  --color-secondary: oklch(75% 0.15 90); /* Muted version for variety */
+  --color-accent: oklch(82% 0.18 90);    /* Keep yellow for accents */
+
+  /* Neutral/Info/Success */
+  --color-neutral: oklch(30% 0.02 0);
+  --color-neutral-content: oklch(90% 0.02 0);
+  --color-info: oklch(70% 0.1 220);
+  --color-success: oklch(70% 0.15 140);
+  --color-warning: oklch(85% 0.2 95);
+  --color-error: oklch(65% 0.2 30);
+
+  /* Style tweaks for a cleaner look */
+  --radius-selector: 0.5rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.75rem;
+  --border: 1px;
+}
+
+@layer base {
+  body {
+    /* @apply font-atkinson antialiased; */
+    /* Fixed Gradient Background */
+    background: linear-gradient(180deg, oklch(10% 0 0) 0%, oklch(20% 0 0) 100%) no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  /* Make sure your yellow accent applies to your Icon component automatically */
+  svg {
+    @apply transition-colors;
+  }
+}
+
+
+@layer components {
+  /* Targets the Shiki/Prism container Astro generates */
+  .prose pre {
+    @apply border border-primary/20 shadow-xl rounded-lg !bg-base-200;
+    max-height: 500px;
+    max-width: 1000px;
+    overflow-y: auto;
+    position: relative;
+    /* padding-top: 2.5rem; /* Space for the "buttons" */ 
+  }
+
+  /* /* Add the terminal dots via pseudo-elements */
+  /* .prose pre::before { */
+  /*   content: ""; */
+  /*   position: absolute; */
+  /*   top: 10px; */
+  /*   left: 10px; */
+  /*   width: 10px; */
+  /*   height: 10px; */
+  /*   border-radius: 50%; */
+  /*   background-color: #ff5f56; */
+  /*   box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f; */
+  /*   z-index: 10; */
+  /* } */
+  
+  /* Add a "Terminal" label */
+  /* .prose pre::after { */
+  /*   content: "CONSOLE"; */
+  /*   position: absolute; */
+  /*   top: 0px; */
+  /*   right: 15px; */
+  /*   font-size: 10px; */
+  /*   font-family: monospace; */
+  /*   opacity: 0.3; */
+  /*   letter-spacing: 2px; */
+  /* } */
+}
