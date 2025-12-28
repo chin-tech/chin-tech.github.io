@@ -7,28 +7,15 @@ pubDate:  2025-09-19
 title: "WhiteRabbit"
 postType: HTB
 osType: Linux
-date: Fri Sep 19 08:51:07 AM HST 2025
-image:
-    path: ../../../assets/posts/htb-whiterabbit/banner.png
-# List Format
-table_of_contents:
-    - Overview
-    - Enumeration
-    - Initial Foothold
-    - Privilege Escalation
-    - Remediation
-initial_creds: ""
-# List Format
-ip_addresses: 
-    - 10.10.11.68
 ---
 
-# WhiteRabbit
+## Overview
 
 An insane box from HTB that requires a lot of enumeration to find numerous vhosts, with one wiki page leaking some information about an n8n workflow that provides you a secret key to forge hmacs so we you can dump a database which happens to have command logs of the creation of a restic repo and the password, as well as hint to root. We copy the restic repo's contents which has an ssh key for one of the open ssh ports (2222) and this user has sudo privileges for restic which lets us arbitrarily read any file and we can find a ssh key for the user morpheus. This grants us a user flag. From here we utilize the hint from the command log that a password was created with a password generator at a specific time, we can reverse engineer the time to brute force all possible passwords and login into the user neo which has sudo (all) privieleges and that gives us root.
 
-## Initial
+## Initial Recon
 
+### nmap
 The nmap scan:
 ```
 # Nmap 7.97 scan initiated Wed Sep 17 21:18:07 2025 as: nmap -vv -sCV -oA nmap/whiterabbit -Pn -T4 --min-rate 1000 -p- 10.10.11.63
@@ -65,6 +52,8 @@ Add the host to ours hosts file:
 add_to_hosts 10.10.11.63 whiterabbit.htb
 ```
 
+### whiterabbit.htb
+
 We won't have much on this page except hints that there's some extra stuff going on here.
 ![services_hint](../../../assets/posts/htb-whiterabbit/initial_webpage.png)
 
@@ -96,6 +85,7 @@ status                  [Status: 302, Size: 32, Words: 4, Lines: 1, Duration: 13
 Add this to our hosts file as well...
 And we see a status page, visiting this we see it's an uptime kuma site, just like the website suggested.
 
+### status.whiterabbit.htb - Uptime Kuma
 ![uptime](../../../assets/posts/htb-whiterabbit/uptime_kuma_initial.png)
 
 
@@ -143,6 +133,7 @@ We have two vhosts here, gophish an wikijs, with some container hostnames.
 Add them to our hosts file and explore.
 
 The gophish page provides us nothing since we don't have any credentials...
+### wikis
 
 The wikijs at least has a post...which is very telling.
 
@@ -184,6 +175,7 @@ However, reading the page it says that the HMAC is there, so any payload would h
 
 
 There's our secret key and there's our vulnerable sql statement.
+#### SQLi with HMAC
 
 So I had to research how to do hmacs, just to see if this even works.
 
@@ -469,6 +461,9 @@ Table: command_log
 ```
 
 Interesting, ANOTHER vhost, this time they're using restic...
+
+### Another vhost!
+
 That's a backup tool written in go. I tried to deal with this part without needing restic and just using it's http endpoints, but I couldn't figure it out. So I had to install restic.
 
 Playing around with the help let me figure out how to use this little tool. 
@@ -552,14 +547,17 @@ sudo restic --repo /tmp/meow dump latest morpheus
 
 A new key, let's copy it over to our machine and see if it works for the regular port 22
 
+## Foothold & Lateral Movement
+
+### Shell as morpheus
 
 ```bash
 ssh -i morpheus morpheus@whiterabbit.htb
 morpheus@whiterabbit:~$ cat user.txt
 ```
 
-## Lateral Movement
 
+### Password generator to root
 We know from the command_log that the user neo had their password set by a program called `neo-password-generator`
 And we got a lovely hint that it's time based since we have a timestamp.
 

@@ -6,20 +6,16 @@ postType: HTB
 difficulty: Easy
 pubDate:  2025-04-24
 title: "Underpass"
-date: 2025-04-24 21:35 -1000
-image:
-   path: ../../../assets/posts/underpass/banner.png
-   alt: underpass_banner
 ---
 
-# HTB - Underpass #
 
 ## Summary ##
 This box presents with two open TCP ports (22,80) with nothing to go on, which leads us to check for open UdP ports. This revealed three open ports (161, 1812, 1813). Port 161 is common as SNMP and enumeration of the public community string reveals that the host intends to be a daloRAdIUS server. This is essentially a management/GUI framework for FreeRADIUS. We can look at the daloRADIUS github for potential paths to attack and common credentials. Proper enumeration reveals an exposed login page that works with default credentials. This lets us see a user listing of which there's one user with a visible MD5 hashed password. We crack this password, ssh into the server to find the first flag. Privilege escalation is gotten by examining sudo access and exploiting the creation of a `mosh` server which connecting to it provides us a root shell.
 
 
-## Walkthrough ##
+## Initial Recon 
 
+### nmap
 As typical with boxes we start with an nmap scan
 ```bash
 nmap -sCV -oA nmap/underpass.tcp -p- $IP
@@ -40,6 +36,7 @@ sudo nmap -sU --minrate 100000 -p- $IP
 ```
 <!-- ![nmap_output_udp](../../../assets/posts/underpass/nmap_udp_out.png) -->
 
+### UDP checking
 This let's us see three different ports; 161, 1812, 1813.
 161 is typical, and I personally was not familiar with 1812 or 1813 so naturally I'll target the common easier thing first.
 
@@ -115,6 +112,9 @@ hashcat svcMosh.hash rockyou.txt -m 0
 ```
 ![hashcat_out](../../../assets/posts/underpass/hashcat_output_2025-04-25_15-19.png)
 
+## Foothold & Lateral Movement
+
+### Shell as svcMosh
 
 Okay, so what do we do with these credentials?
 Naturally we try them anywhere else to see what we can do. The obvious option is to try ssh
@@ -144,7 +144,7 @@ And we have our root shell.
 ![root](../../../assets/posts/underpass/root_2025-04-25_15-45.png)
 
 
-## Mitigations ##
+## Mitigations 
 
 ### Default Credentials ###
 The most obvious and crucial fix is taking the advice of doc/install/INSTALL, in the Note: section.

@@ -5,21 +5,6 @@ description: Write-up
 postType: HTB
 pubDate:  2025-06-02
 title: "HTB Puppy"
-date: Mon Jun  2 06:26:39 PM HST 2025
-image:
-    path: ../../../assets/posts/puppy/banner.png
-    alt: puppy_banner
-# List Format
-table_of_contents:
-    - Overview
-    - Enumeration
-    - Initial Foothold
-    - Privilege Escalation
-    - Remediation
-initial_creds: "levi.james:KingofAkron2025!"
-# List Format
-ip_addresses: 
-    - 10.10.11.70
 ---
 
 

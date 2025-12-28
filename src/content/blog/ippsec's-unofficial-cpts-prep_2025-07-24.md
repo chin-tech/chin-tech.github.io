@@ -5,21 +5,6 @@ description: Going through and summarizing my experience of the 22 boxes
 postType: OTHER
 pubDate:  2025-07-24
 title: "Ippsec's Unofficial CPTS Prep"
-date: Thu Jul 24 06:28:41 AM HST 2025
-image:
-    path: ../../assets/posts/htb-cpts-prep-list/banner.png
-    alt: cpts_prep_banner
-# List Format
-table_of_contents:
-    - Overview
-    - Enumeration
-    - Initial Foothold
-    - Privilege Escalation
-    - Remediation
-initial_creds: ""
-# List Format
-ip_addresses: 
-    - 10.10.11.68
 ---
 
 I have recently gone through Ippsec's unofficial CPTS prep list in order to well-round myself before taking the exam.

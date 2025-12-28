@@ -7,34 +7,21 @@ osType: Windows
 difficulty: Hard
 pubDate:  2025-07-30
 title: "Certificate"
-date: Wed Jul 30 11:04:57 AM HST 2025
-image:
-  path: ../../../assets/posts/htb-certificate/banner.png
-  alt: certificate-banner
-# List Format
-table_of_contents:
-    - Overview
-    - Enumeration
-    - Initial Foothold
-    - Privilege Escalation
-    - Remediation
-initial_creds: ""
-# List Format
-ip_addresses: 
-    - 10.10.11.68
 ---
 
 
 
 
 ## Summary
+The attack progresses through a web exploitation foothold, credential harvesting via PCAP analysis, Active Directory Certificate Services (AD CS) exploitation, and finally, a privilege-escalation technique leveraging a specific Windows permission to capture the CA private key.
 
-## Enumeration
+## Initial Scanning
 
+### nmap
 We start with nothing, but we try an nmap scan.
 
-```
-# Nmap 7.97 scan initiated Wed Jul 16 10:51:45 2025 as: nmap -vv -sCV -oA nmap/certificate -Pn -T4 --min-rate 1000 -p- 10.10.11.71
+```bash
+nmap -vv -sCV -oA nmap/certificate -Pn -T4 --min-rate 1000 -p- 10.10.11.71
 Nmap scan report for 10.10.11.71
 Host is up, received user-set (0.13s latency).
 Scanned at 2025-07-16 10:51:46 HST for 331s
@@ -140,6 +127,8 @@ Service detection performed. Please report any incorrect results at https://nmap
 
 This shows a web server and your typical Active Directory goodness.
 
+### Recon
+
 We check dig for any zone-transfer, just on the off chance
 ```bash
 dig axfr certificate.htb @$ip +noall +answer
@@ -170,7 +159,7 @@ The webserver is using the [`Eclipse`](https://preview.colorlib.com/#eclipse) th
 Looking at the base theme and what we have, the main difference is the login panel providing registration and well..logins. So my immediate suspicion goes there. The contact page submission has a different message after posting so that's also an avenue of exploration.
 
 
-### Registration
+### certificate.htb - Registration
 We can register an account, but we can't view any profiles. The one thing to note is our username gets populated into the 'Welcome back' slogan. And we can surprisingly register with a username that contains script tags.
 This is stored XXS
 ![stored_xxs](../../../assets/posts/htb-certificate/stored_xxs.png)
@@ -199,7 +188,7 @@ So I went to explore more functionality of the website and I should have done th
 This seems more likely the way forward.
 
 
-### Uploads
+### certificate.htb - Uploads
 The site says it only accepts certain file extensions: PDF, docx, pptx, xlsx, and .zip
 Depending on if they're interacted with and the versions they all could be potentially vulnerable, but let's just see if it's something easier with a simple php reverse shell first. My suspicion is no, given the newer PHP version and the use of HttpOnly cookies, you'd have to go out of your way to execute submitted assignments as php but...always try.
 
@@ -235,7 +224,9 @@ And we're in.
 We can then just get a reverse shell, with revshells after url encoding it and now we navigate
 
 
-## Foothold...now what?
+## Foothold
+
+### Shell as xamppuser
 
 Looking at `upload.php` in the web directory, does indeed verify that xlsx was just a lie. It also was using winrar to extract the zips and checking if more than one archive was there.
 ```php
@@ -348,6 +339,8 @@ SMB         10.10.11.71     445    DC01             [+] certificate.htb\sara.b:$
 ```
 
 ## Lateral Movement
+
+### Shell as sara.b
 We're in. Next I ran rusthound to gather some active-directory data. It does reveal that we have winrm and *remote desktop* access, so we can probably grab a flag.
 
 After running rusthound, I have a a python script that quickly tells me all the groups with the users underneath so I have a decent idea of what we should look for, for reference. Bloodhound requires a tad bit more clicking to get that information.
@@ -416,8 +409,6 @@ gci -recurse
 ```
 
 ```
-
-
     Directory: C:\Users\Sara.B\Documents
 
 
@@ -436,6 +427,7 @@ Mode                LastWriteTime         Length Name
 ```
 
 
+### PCAP Analysis via tshark
 a pcap file, and a description, which tells us there's some bugginess going with the WS-01 computer with smb authentication. So let's investigate this pcap file. 
 Downloading it checking what kind of packets we have.
 ```bash
@@ -517,6 +509,9 @@ $krb5pa$18$Lion.SK$CERTIFICATE$23f5159fa1c66ed7b0e561543eba6c010cd31f7e4a4377c29
 ```
 
 So we have it. These credentials do indeed work, so what can lion.sk do?
+
+### Taming the lion.sk
+
 ![domain_cra](../../../assets/posts/htb-certificate/bh_domain_cra.png)
 They're a part of the `Domain CRA Managers` which is reponsible for issuing and revoking certificates. And this domain doesn't have the typical `User` template, it has `SignedUser` which requires a signed certificate to issue it. This member allows us to issue to request a certificate and then issue new user certificates on behalf of other users. This likely won't work for every user, but we'll have to see.
 
@@ -720,6 +715,9 @@ File 'ryan.k.ccache' already exists. Overwrite? (y/n - saying no will save with 
 
 That works! So we can login with kerberos or the hash, I'll use the hash for simplicity. Then we can see what permissions this fella might have.
 
+## Finding Root
+### Thanks to ryan.k
+
 ```powershell
 whoami /priv
 ```
@@ -824,36 +822,4 @@ Certipy v5.0.3 - by Oliver Lyak (ly4k)
 [*] Got hash for 'administrator@certificate.htb': aad3b435b51404eeaad3b435b51404ee:<Redacted>
 ```
 
-And that is a fantastic box. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+And that's all folks!
