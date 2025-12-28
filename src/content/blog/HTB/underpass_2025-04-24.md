@@ -3,6 +3,7 @@ heroImage: '../../../assets/posts/underpass/banner.png'
 layout: post
 description: Easy box that reminds us that UDP is important to check and covers FreeRADIUS and Mosh for privilege escalation
 postType: HTB
+osType: Linux
 difficulty: Easy
 pubDate:  2025-04-24
 title: "Underpass"
