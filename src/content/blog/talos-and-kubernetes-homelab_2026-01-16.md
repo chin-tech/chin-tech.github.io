@@ -2,7 +2,7 @@
 layout: post
 pubDate: 2026-01-17
 postType: Blog
-heroImage: ../../../assets/posts/talos-homelab/banner.png
+heroImage: ../../assets/posts/talos-homelab/banner.png
 title: "Talos - Homelab"
 date: Thu Jan 15 09:10:50 PM MST 2026
 description: Discussing the setup of a k8s lab
