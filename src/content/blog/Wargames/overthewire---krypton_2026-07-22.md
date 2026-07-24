@@ -5,7 +5,7 @@ postType: Wargame
 heroImage: ../../assets/posts/otw-krypton/banner.png
 title: "OverTheWire - Krypton"
 date: 2026-07-22
-description: OverTheWire's Krypton
+description: OverTheWire's Krypton Wargame
 difficulty: Easy
 scenario: 
 tags: ['Write-Up']
