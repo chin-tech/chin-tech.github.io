@@ -6,8 +6,7 @@ heroImage: ../../assets/posts/otw-krypton/banner.png
 title: "OverTheWire - Krypton"
 date: 2026-07-22
 description: OverTheWire's Krypton
-osType: <>
-difficulty: <>
+difficulty: Easy
 scenario: 
 tags: ['Write-Up']
 ---
