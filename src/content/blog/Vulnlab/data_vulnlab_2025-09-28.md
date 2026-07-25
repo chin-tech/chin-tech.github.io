@@ -9,7 +9,7 @@ difficulty: Easy
 title: "Data"
 date: Sun Sep 28 08:46:31 PM HST 2025
 image:
-    path: @assets/posts/vulnlab-data/data.png
+    path: '@assets/posts/vulnlab-data/data.png'
     alt: [Vulnlab - Data]
 # List Format
 table_of_contents:
