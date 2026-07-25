@@ -1,5 +1,5 @@
 ---
-heroImage: '../../../assets/posts/htb-whiterabbit/banner.png'
+heroImage: '@assets/posts/htb-whiterabbit/banner.png'
 layout: post
 description: Insane level box that utilizes lots of services, having to perform sql injection with HMAC signing, restic backups and a bad password generator that gives us root
 difficulty: Insane
@@ -55,7 +55,7 @@ add_to_hosts 10.10.11.63 whiterabbit.htb
 ### whiterabbit.htb
 
 We won't have much on this page except hints that there's some extra stuff going on here.
-![services_hint](../../../assets/posts/htb-whiterabbit/initial_webpage.png)
+![services_hint](@assets/posts/htb-whiterabbit/initial_webpage.png)
 
 
 So this tells us we need to do some vhost enumeration to see if we can find some of them.
@@ -86,7 +86,7 @@ Add this to our hosts file as well...
 And we see a status page, visiting this we see it's an uptime kuma site, just like the website suggested.
 
 ### status.whiterabbit.htb - Uptime Kuma
-![uptime](../../../assets/posts/htb-whiterabbit/uptime_kuma_initial.png)
+![uptime](@assets/posts/htb-whiterabbit/uptime_kuma_initial.png)
 
 
 We have no creds and default / weak credentials do not work, but the vhost also gave nothing else. So surely, we have to investigate more.
@@ -127,7 +127,7 @@ by Ben "epi" Risher 🤓                 ver: 2.11.0
 
 And almost immediately we get an end point.
 
-![status_temp](../../../assets/posts/htb-whiterabbit/status_temp_page.png)
+![status_temp](@assets/posts/htb-whiterabbit/status_temp_page.png)
 
 We have two vhosts here, gophish an wikijs, with some container hostnames.
 Add them to our hosts file and explore.
@@ -137,7 +137,7 @@ The gophish page provides us nothing since we don't have any credentials...
 
 The wikijs at least has a post...which is very telling.
 
-![wikijs](../../../assets/posts/htb-whiterabbit/wikijs.png)
+![wikijs](@assets/posts/htb-whiterabbit/wikijs.png)
 
 It gives us a new host, which is for the n8n an example post request for the webhook and an example workflow in the json.
 And more importantly, a debug node which on error gives us some feedback, so we can utilize some sql injection likely. Since the post even says that.
@@ -584,7 +584,7 @@ root@whiterabbit:~#
 There is a chance that we don't iterate correctly on the 10,000 calls to the password generator, so if you wanted to be positive we get every instance we can take it to a decompiler.
 
 
-![ghidra](../../../assets/posts/htb-whiterabbit/ghidra.pngg)
+![ghidra](@assets/posts/htb-whiterabbit/ghidra.pngg)
 
 the seed which is the second * 1000 and the usec / 1000 gets passed into gen_pass function.
 

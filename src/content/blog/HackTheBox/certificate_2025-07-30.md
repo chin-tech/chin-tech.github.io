@@ -1,5 +1,5 @@
 ---
-heroImage: '../../../assets/posts/htb-certificate/banner.png'
+heroImage: '@assets/posts/htb-certificate/banner.png'
 layout: post
 description: Hard box that covers a win-rar zip concatenation vulnerability as well as certificate privileges that give us system
 postType: HTB
@@ -162,7 +162,7 @@ Looking at the base theme and what we have, the main difference is the login pan
 ### certificate.htb - Registration
 We can register an account, but we can't view any profiles. The one thing to note is our username gets populated into the 'Welcome back' slogan. And we can surprisingly register with a username that contains script tags.
 This is stored XXS
-![stored_xxs](../../../assets/posts/htb-certificate/stored_xxs.png)
+![stored_xxs](@assets/posts/htb-certificate/stored_xxs.png)
 
 Some issues with registration:
 - Username and email are apparently factors in uniqueness of an account.
@@ -183,7 +183,7 @@ So, my suspicion is we need to register a teacher with some stored xxs and when 
 However, after attempting this nicely thought out plan to see if I ever get a call back from my server, led to some sadness.
 So I went to explore more functionality of the website and I should have done this sooner, because I can upload files?
 
-![upload](../../../assets/posts/htb-certificate/file_upload.png)
+![upload](@assets/posts/htb-certificate/file_upload.png)
 
 This seems more likely the way forward.
 
@@ -195,7 +195,7 @@ Depending on if they're interacted with and the versions they all could be poten
 Uploading php content, even with the wrong extension leads to malicious content found. So it is likely running some type of content checking.
 I tried XLS files but the header is also errored out for an invalid mimetype.
 However, PDF, docx, ppt, and zip works and we get a visible link to our page.
-![upload_success](../../../assets/posts/htb-certificate/pdf_upload_success.png)
+![upload_success](@assets/posts/htb-certificate/pdf_upload_success.png)
 
 The url is an md5sum, I was thinking it might be just the md5sum of our username, but that's not the case. It does change based on user, but not based on file, so IDOR doesn't seem likely.
 I had played with a variety of different possibilities, trying to modify the content to see if an XXE injection was possible, but nothing would let me upload, and there was no guarantee that anyone is actually clicking anything.
@@ -213,7 +213,7 @@ You can then unzip this file to see the method at work,
 
 Upload our 3.zip and we get a success:
 
-![zip_success](../../../assets/posts/htb-certificate/successful_zip.png)
+![zip_success](@assets/posts/htb-certificate/successful_zip.png)
 
 So we can copy that link, and replace it with our shell file, that was also in the zip.
 ```bash
@@ -512,7 +512,7 @@ So we have it. These credentials do indeed work, so what can lion.sk do?
 
 ### Taming the lion.sk
 
-![domain_cra](../../../assets/posts/htb-certificate/bh_domain_cra.png)
+![domain_cra](@assets/posts/htb-certificate/bh_domain_cra.png)
 They're a part of the `Domain CRA Managers` which is reponsible for issuing and revoking certificates. And this domain doesn't have the typical `User` template, it has `SignedUser` which requires a signed certificate to issue it. This member allows us to issue to request a certificate and then issue new user certificates on behalf of other users. This likely won't work for every user, but we'll have to see.
 
 

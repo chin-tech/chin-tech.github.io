@@ -1,5 +1,5 @@
 ---
-heroImage: '../../../assets/terraform_banner.jpg'
+heroImage: '@assets/terraform_banner.jpg'
 layout: post
 description: Learning terraform by spinning up a locally provisioned QEMU vm network!
 postType: OTHER
@@ -12,7 +12,7 @@ date: Wed Jun 18 01:39:03 -1000
 
 I have been humbly trying to learn Terraform locally because provisioning cloud resources is a costly endeavour. And trying to learn a tool that is primarily for cloud usage on a local environment definitely incurs some headaches.
 So my goal trying to broaden my understanding of all modern I.T infrastructure and my pursuit of cybersecurity was to build a cybersecurity homelab, something along the lines of
-![homelab_reference_image](../../assets/posts/terraform_home_lab/homrlab_example.png)
+![homelab_reference_image](@assets/posts/terraform_home_lab/homrlab_example.png)
 
 Although, I'll just be starting off with 3 VLANS, a wazuh-server, agent and a firewall. The firewall being VyOS (if you have ever tried to automate pfSense, you understand why)
 This was a delightful goal and doesn't seem that hard to setup. Because it's just like one sentence. But as with most things in I.T you learn very quickly that one sentence can become a day or more (much more) of labor and education in things you didn't expect to be educated on.

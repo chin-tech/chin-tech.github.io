@@ -1,5 +1,5 @@
 ---
-heroImage: '../../../assets/posts/htb-cpts-prep-list/banner.png'
+heroImage: '@assets/posts/htb-cpts-prep-list/banner.png'
 layout: post
 description: Going through and summarizing my experience of the 22 boxes
 postType: OTHER

@@ -1,5 +1,5 @@
 ---
-heroImage: '../../../assets/posts/vulnlab-data/data.png'
+heroImage: '@assets/posts/vulnlab-data/data.png'
 layout: post
 description: Easy linux box with LFI dumping grafana.db, password cracking, and sudo docker abuse for a host escape.
 postType: VULNLAB
@@ -9,7 +9,7 @@ difficulty: Easy
 title: "Data"
 date: Sun Sep 28 08:46:31 PM HST 2025
 image:
-    path: ../../../assets/posts/vulnlab-data/data.png
+    path: @assets/posts/vulnlab-data/data.png
     alt: [Vulnlab - Data]
 # List Format
 table_of_contents:
@@ -68,7 +68,7 @@ Service detection performed. Please report any incorrect results at https://nmap
 
 The OpenSSH version is a little dated by today's standards but nothing crazy. So we'll focus on port 3000 because it's a webserver of some kind.
 
-![grafana](../../../assets/posts/vulnlab-data/grafana.png)
+![grafana](@assets/posts/vulnlab-data/grafana.png)
 
 We can some default credentials, but there's nothing that let's us in. However there's a piece of information that is graciously leaked here and that version is 8.0.0
 

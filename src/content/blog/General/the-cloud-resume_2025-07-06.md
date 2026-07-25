@@ -1,5 +1,5 @@
 ---
-heroImage: '../../../assets/cloud_resume.gif'
+heroImage: '@assets/cloud_resume.gif'
 layout: post
 description: Going through the cloud-resume challenge using AWS
 postType: OTHER
@@ -17,7 +17,7 @@ I decided to undertake the [Cloud Resume Challenge](https://cloudresumechallenge
 We have the outline presented to us but it's a pretty abstract outline.
 It helps having a picture to illustrate all of the components, see how they all interact. Then we can itemize our components for a bit more of a grnaular look.
 
-![DesignLayout](../../assets/posts/a_cloud_resume/design.svg)
+![DesignLayout](@assets/posts/a_cloud_resume/design.svg)
 
 *S3 Bucket*
 - Bucket

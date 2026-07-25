@@ -1,5 +1,5 @@
 ---
-heroImage: '../../../assets/posts/underpass/banner.png'
+heroImage: '@assets/posts/underpass/banner.png'
 layout: post
 description: Easy box that reminds us that UDP is important to check and covers FreeRADIUS and Mosh for privilege escalation
 postType: HTB
@@ -21,7 +21,7 @@ As typical with boxes we start with an nmap scan
 ```bash
 nmap -sCV -oA nmap/underpass.tcp -p- $IP
 ```
-<!-- ![nmap_output_tcp](../../../assets/posts/underpass/nmap_tcp_out.png) -->
+<!-- ![nmap_output_tcp](@assets/posts/underpass/nmap_tcp_out.png) -->
 
 
 We see we have ssh and http open, so naturally we'll check the webpage
@@ -35,7 +35,7 @@ So let's check the other transport protocol.
 ```bash
 sudo nmap -sU --minrate 100000 -p- $IP
 ```
-<!-- ![nmap_output_udp](../../../assets/posts/underpass/nmap_udp_out.png) -->
+<!-- ![nmap_output_udp](@assets/posts/underpass/nmap_udp_out.png) -->
 
 ### UDP checking
 This let's us see three different ports; 161, 1812, 1813.
@@ -44,7 +44,7 @@ This let's us see three different ports; 161, 1812, 1813.
 ```bash
 snmp-check -c v2 $IP
 ```
-<!-- ![snmp-check-output](../../../assets/posts/underpass/snmp_check_out.png) -->
+<!-- ![snmp-check-output](@assets/posts/underpass/snmp_check_out.png) -->
 
 We get a name and an email and the declaration that this is the only daloRADIUS server in the basin.
 This is the first time I heard of daloRADIUS, so let's do some research.
@@ -97,12 +97,12 @@ contrib/chilli/portal2/hotspotlogin/template/loginform-login.php [Status: 200, S
 
 Trying them in order, gives us a login right away with `app/operators/login.php` using the default credentials from earlier.
 
-![daloRADIUS Login](../../../assets/posts/underpass/daloradius_login_2025-04-25_14-07.png)
+![daloRADIUS Login](@assets/posts/underpass/daloradius_login_2025-04-25_14-07.png)
 
 We can see the user `svcMosh` with a password. The password doesn't look like something a normal person would put in, so it's probably hashed.
 If you're familiar with hashes you might notice it as a likely MD5, or you can google it / ask AI...or try and edit the account and under Check Attributes it tells us what the hash is.
 
-![daloRADIUS hashtype](../../../assets/posts/underpass/daloradius_md5_2025-04-25_14-14.png)
+![daloRADIUS hashtype](@assets/posts/underpass/daloradius_md5_2025-04-25_14-14.png)
 
 
 So, let's crack the hash?
@@ -111,7 +111,7 @@ So, let's crack the hash?
 echo "$MD5_HASH" > svcMosh.hash
 hashcat svcMosh.hash rockyou.txt -m 0
 ```
-![hashcat_out](../../../assets/posts/underpass/hashcat_output_2025-04-25_15-19.png)
+![hashcat_out](@assets/posts/underpass/hashcat_output_2025-04-25_15-19.png)
 
 ## Foothold & Lateral Movement
 
@@ -124,25 +124,25 @@ ssh svcMosh@$IP
 ```
 
 And we successfully authenticate as the user and get a shell
-![svcMosh login](../../../assets/posts/underpass/svc_mosh_2025-04-25_15-23.png)
+![svcMosh login](@assets/posts/underpass/svc_mosh_2025-04-25_15-23.png)
 
 And we get our first investigatory point for privilege escalation when we run `sudo -l`
-![sudo -l ](../../../assets/posts/underpass/sudo_l_2025-04-25_15-25.png)
+![sudo -l ](@assets/posts/underpass/sudo_l_2025-04-25_15-25.png)
 
 Now I have no idea what a mosh-server is, but usually running any server as root tends to have security vulnerabilities.
 `man mosh-server`
 The man pages says mosh this command is a helper for mosh (which stands for `mobile shell`) and this runs and then waits for a `mosh-client`
 `man mosh-client`
-![mosh_client](../../../assets/posts/underpass/mosh_client2025-04-25_15-40.png)
+![mosh_client](@assets/posts/underpass/mosh_client2025-04-25_15-40.png)
 
 So let's try that?
 
-![mosh_server](../../../assets/posts/underpass/mosh_server_2025-04-25_15-43.png)
+![mosh_server](@assets/posts/underpass/mosh_server_2025-04-25_15-43.png)
 
 
 And we have our root shell.
 
-![root](../../../assets/posts/underpass/root_2025-04-25_15-45.png)
+![root](@assets/posts/underpass/root_2025-04-25_15-45.png)
 
 
 ## Mitigations 

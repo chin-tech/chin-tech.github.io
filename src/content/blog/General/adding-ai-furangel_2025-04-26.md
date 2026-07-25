@@ -1,5 +1,5 @@
 ---
-heroImage: '../../../assets/faf_gemini_banner.png'
+heroImage: '@assets/faf_gemini_banner.png'
 layout: post
 description: Adding AI to assist as a fallback for parsing formatted invoices
 postType: OTHER
@@ -24,10 +24,10 @@ The problem was I only managed to get the bulk of their typical invoices and was
 So here's an example of a PDF that just sucked with text_extraction:
 
 An example:
-![Ali Animal Example](../../assets/posts/adding_ai/ali_animal_invoice_example.png)
+![Ali Animal Example](@assets/posts/adding_ai/ali_animal_invoice_example.png)
 
 Extracted Text:
-![Ali Text Example](../../assets/posts/adding_ai/ali_animal_invoice_text.png)
+![Ali Text Example](@assets/posts/adding_ai/ali_animal_invoice_text.png)
 
 Now I even removed some of the excess spaces to get it to display nicely. Notable problems?
 - Vet Center: It doesn't show up in the extracted text, except in the email, but how would I decipher the vet center in the email without already knowing it prior?
