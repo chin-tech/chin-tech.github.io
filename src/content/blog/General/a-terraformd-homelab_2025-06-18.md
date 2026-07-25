@@ -1,5 +1,5 @@
 ---
-heroImage: '../../assets/terraform_banner.jpg'
+heroImage: '../../../assets/terraform_banner.jpg'
 layout: post
 description: Learning terraform by spinning up a locally provisioned QEMU vm network!
 postType: OTHER

@@ -1,5 +1,5 @@
 ---
-heroImage: '../../assets/cloud_resume.gif'
+heroImage: '../../../assets/cloud_resume.gif'
 layout: post
 description: Going through the cloud-resume challenge using AWS
 postType: OTHER

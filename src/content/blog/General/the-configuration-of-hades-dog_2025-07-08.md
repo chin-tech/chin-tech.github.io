@@ -1,5 +1,5 @@
 ---
-heroImage: '../../assets/kerberos_banner.png'
+heroImage: '../../../assets/kerberos_banner.png'
 layout: post
 description: Discussing KRB5_CONFIG and fixing a small error in nmap's NSE
 postType: OTHER
