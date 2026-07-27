@@ -5,9 +5,9 @@ postType: wargame
 heroImage: '@assets/posts/wargame-underthewire-oracle/banner.png'
 title: "UnderTheWire-Oracle"
 date: 2026-07-25
-description: <FILL ME IN>
-osType: <>
-difficulty: <>
+description: UnderTheWire's Oracle - Powershell wargame
+osType: Windows 
+difficulty: Easy
 tags: ['Write-Up']
 ---
 
