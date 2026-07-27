@@ -1,5 +1,5 @@
 ---
-heroImage: '@assets/posts/adding-ai/banner.png'
+heroImage: '@assets/posts/adding_ai/banner.png'
 layout: post
 description: Adding AI to assist as a fallback for parsing formatted invoices
 postType: OTHER
